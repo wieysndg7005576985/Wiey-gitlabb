@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Space with Solar System</title>
+    <style>
+        /* Previous styles remain the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background: #000;
+        }
+
+        .container {
+            position: relative;
+            height: 100vh;
+            perspective: 1000px;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            transform-origin: center center;
+        }
+
+        /* Enhanced Sun Styles */
+        .sun {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at center, #ff8f00, #ff6f00 70%, transparent 90%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 60px #ff8f00, 0 0 120px #ff8f00, 0 0 180px #ff8f00;
+            animation: sun-glow 3s infinite ease-in-out;
+        }
+
+        .sun::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #ff8f00, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: sun-pulse 3s infinite ease-in-out;
+        }
+
+        .sun::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(255, 143, 0, 0.2), transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: sun-halo 5s infinite ease-in-out;
+        }
+
+        @keyframes sun-glow {
+            0%, 100% {
+                box-shadow: 0 0 60px #ff8f00, 0 0 120px #ff8f00, 0 0 180px #ff8f00;
+            }
+            50% {
+                box-shadow: 0 0 80px #ff8f00, 0 0 160px #ff8f00, 0 0 240px #ff8f00;
+            }
+        }
+
+        @keyframes sun-pulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        @keyframes sun-halo {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        /* Rest of the styles remain the same */
+        .solar-system {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-style: preserve-3d;
+        }
+
+        .orbit {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform-style: preserve-3d;
+        }
+
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .planet:hover {
+            transform: scale(1.2);
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+
+        .button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid white;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stars"></div>
+        <div class="solar-system">
+            <div class="sun"></div>
+            <!-- Orbits and planets will be added by JavaScript -->
+        </div>
+        <div class="content">
+            <h1>Solar System Explorer</h1>
+            <p>Witness the celestial dance of planets orbiting their star.</p>
+            <button class="button">Begin Exploration</button>
+        </div>
+    </div>
+
+    <script>
+        // Previous star functions remain the same
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const starCount = 200;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const z = Math.random() * 1000;
+                const scale = Math.random() * 0.5 + 0.5;
+                const delay = Math.random() * 5;
+
+                star.style.cssText = `
+                    left: ${x}%;
+                    top: ${y}%;
+                    transform: translateZ(${z}px) scale(${scale});
+                    animation-delay: ${delay}s;
+                `;
+
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function animateStars() {
+            const stars = document.querySelectorAll('.star');
+            const speed = 0.1;
+            let angle = 0;
+
+            function update() {
+                angle += speed;
+                
+                stars.forEach((star) => {
+                    const z = parseFloat(star.style.transform.match(/translateZ\(([-\d.]+)px\)/)[1]);
+                    const newZ = z - 1;
+                    
+                    if (newZ < 0) {
+                        star.style.transform = `translateZ(1000px) scale(${Math.random() * 0.5 + 0.5})`;
+                    } else {
+                        star.style.transform = `translateZ(${newZ}px) scale(${star.style.transform.match(/scale\(([\d.]+)\)/)[1]})`;
+                    }
+                });
+
+                document.querySelector('.stars').style.transform = `rotateX(45deg) rotateZ(${angle}deg)`;
+                requestAnimationFrame(update);
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Solar System Creation
+        function createSolarSystem() {
+            const solarSystem = document.querySelector('.solar-system');
+            const planets = [
+                { name: 'Mercury', size: 10, color: '#A0522D', orbitRadius: 80, speed: 4.7 },
+                { name: 'Venus', size: 15, color: '#DEB887', orbitRadius: 120, speed: 3.5 },
+                { name: 'Earth', size: 16, color: '#4169E1', orbitRadius: 170, speed: 3 },
+                { name: 'Mars', size: 12, color: '#CD5C5C', orbitRadius: 220, speed: 2.4 },
+                { name: 'Jupiter', size: 30, color: '#DAA520', orbitRadius: 290, speed: 1.3 },
+                { name: 'Saturn', size: 25, color: '#F4A460', orbitRadius: 360, speed: 0.9, ring: true },
+                { name: 'Uranus', size: 20, color: '#87CEEB', orbitRadius: 420, speed: 0.7 },
+                { name: 'Neptune', size: 18, color: '#4682B4', orbitRadius: 480, speed: 0.5 }
+            ];
+
+            planets.forEach((planet) => {
+                // Create orbit
+                const orbit = document.createElement('div');
+                orbit.className = 'orbit';
+                orbit.style.cssText = `
+                    width: ${planet.orbitRadius * 2}px;
+                    height: ${planet.orbitRadius * 2}px;
+                    margin-left: -${planet.orbitRadius}px;
+                    margin-top: -${planet.orbitRadius}px;
+                    animation: orbit ${planet.speed * 10}s linear infinite;
+                `;
+
+                // Create planet
+                const planetDiv = document.createElement('div');
+                planetDiv.className = 'planet';
+                planetDiv.title = planet.name;
+                planetDiv.style.cssText = `
+                    width: ${planet.size}px;
+                    height: ${planet.size}px;
+                    background: ${planet.color};
+                    margin-left: -${planet.size/2}px;
+                    margin-top: -${planet.size/2}px;
+                `;
+
+                // Add ring for Saturn
+                if (planet.ring) {
+                    const ring = document.createElement('div');
+                    ring.style.cssText = `
+                        position: absolute;
+                        width: ${planet.size * 2}px;
+                        height: ${planet.size * 0.4}px;
+                        background: linear-gradient(to right, #B8860B, #CD853F, #B8860B);
+                        border-radius: 50%;
+                        transform: translate(-${planet.size}px, -${planet.size * 0.2}px) rotateZ(60deg);
+                    `;
+                    planetDiv.appendChild(ring);
+                }
+
+                orbit.appendChild(planetDiv);
+                solarSystem.appendChild(orbit);
+            });
+
+            // Add orbit animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes orbit {
+                    from { transform: rotateZ(0deg); }
+                    to { transform: rotateZ(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Initialize
+        createStars();
+        animateStars();
+        createSolarSystem();
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            document.querySelector('.stars').innerHTML = '';
+            createStars();
+        });
+    </script>
+</body>
+</html>
